@@ -12,7 +12,7 @@ jobs:
     with:
       app_name: traefik
       helm_repository: https://traefik.github.io/charts
-      helm_chart: traefik/traefik
+      helm_chart: traefik # Changed from traefik/traefik to just traefik
       helm_version: 24.0.0
       values_path: helm/values
       ingress_domain: jhofer.lan
