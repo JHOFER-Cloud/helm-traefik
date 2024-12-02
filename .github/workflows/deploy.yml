@@ -15,7 +15,7 @@ jobs:
       helm_chart: traefik/traefik
       helm_version: 24.0.0
       values_path: helm/values
-      ingress_domain: your-domain.com
+      ingress_domain: jhofer.lan
     secrets:
       KUBE_CONFIG_DEV: ${{ secrets.KUBE_CONFIG_DEV }}
       KUBE_CONFIG_LIVE: ${{ secrets.KUBE_CONFIG_LIVE }}
