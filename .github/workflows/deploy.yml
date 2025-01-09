@@ -16,8 +16,12 @@ jobs:
       helm_chart: traefik/traefik
       helm_version: 33.2.1
       values_path: helm/values
-      internal_domain: dev.hla1.jhofer.lan
-      external_domain: live.hla1.jhofer.lan
+      ##TODO:
+      # external_domain: jhofer.org ## As example; If not set fallback to internal_domain
+      # external_acme: true ## Letsencrypt; false or not set = internal_acme
+      # external_acme_email: admin@jhofer.de
+      # internal_acme: https://pki.jhofer.lan/directory
+      internal_domain: k8.hla1.jhofer.lan ## CUSTOM ACME
       traefik_dashboard: true
       root_ca: "https://pki.jhofer.lan/certs/root-ca.pem"
     secrets:
