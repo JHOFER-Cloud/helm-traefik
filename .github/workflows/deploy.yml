@@ -18,6 +18,8 @@ jobs:
       values_path: helm/values
       internal_domain: dev.hla1.jhofer.lan
       external_domain: live.hla1.jhofer.lan
+      traefik_dashboard: true
+      root_ca: "https://pki.jhofer.lan/certs/root-ca.pem"
     secrets:
       KUBE_CONFIG_DEV: ${{ secrets.KUBE_CONFIG_DEV }} ## HLA1 CONFIG
       KUBE_CONFIG_LIVE: ${{ secrets.KUBE_CONFIG_LIVE }} ## EMPTY CONFIG
