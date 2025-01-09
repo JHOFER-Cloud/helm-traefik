@@ -1,5 +1,4 @@
 name: Deploy Traefik
-
 on:
   push:
     branches:
@@ -8,7 +7,6 @@ on:
   pull_request:
     branches:
       - dev
-
 jobs:
   traefik:
     uses: JHOFER-Cloud/helm-ci/.github/workflows/k8s-deploy-template.yml@main
