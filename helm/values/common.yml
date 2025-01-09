@@ -1,11 +1,35 @@
 deployment:
-  kind: DaemonSet
+  kind: Deployment
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - traefik
+          topologyKey: "kubernetes.io/hostname"
 
-additionalArguments:
-  - --api.dashboard=true
-  - --api.insecure=true ##FIX: Disable insecure later
-  - --serverstransport.insecureskipverify=true
-  - --log.level=INFO
+ingressRoute:
+  dashboard:
+    enabled: true
+    annotations: {}
+    labels: {}
+    # MatchRule gets set in helm-ci for traefik
+    entryPoints:
+      - websecure
+    middlewares: []
+    tls: {}
+    services:
+      - name: api@internal
+        kind: TraefikService
+
+dashboard:
+  enabled: true
+
+experimental:
+  plugins: {}
 
 ports:
   web:
@@ -20,37 +44,25 @@ ports:
       default: true
     exposedPort: 443
     protocol: TCP
+    tls:
+      enabled: true
 
 service:
   type: LoadBalancer
   spec:
-    externalTrafficPolicy: Local
+    externalIPs:
+      - "10.2.1.214"
+      - "10.2.1.161"
 
-ingressRoute:
-  dashboard:
-    enabled: true
-    annotations: {}
-    entryPoints: ["web", "websecure"]
-
-rbac:
-  enabled: true
-
-resources:
-  requests:
-    cpu: 100m
-    memory: 128Mi
-  limits:
-    cpu: 500m
-    memory: 512Mi
-
-securityContext:
-  capabilities:
-    drop: [ALL]
-    add: [NET_BIND_SERVICE]
-  readOnlyRootFilesystem: true
-  runAsGroup: 65532
-  runAsNonRoot: true
-  runAsUser: 65532
-
-podSecurityContext:
-  fsGroup: 65532
+additionalArguments:
+  - --api=true
+  - --api.insecure=true
+  - --api.dashboard=true
+  - --providers.kubernetesIngress=true
+  - --providers.kubernetesCRD=true
+  - --entrypoints.web.address=:80
+  - --entrypoints.websecure.address=:443
+  - --serverstransport.insecureskipverify=true
+  - --log.level=INFO
+  - --entrypoints.web.http.redirections.entryPoint.to=websecure
+  - --entrypoints.web.http.redirections.entryPoint.scheme=https
