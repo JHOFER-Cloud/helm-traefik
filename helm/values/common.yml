@@ -21,8 +21,9 @@ ingressRoute:
     entryPoints:
       - websecure
     middlewares: []
-    tls:
-      certResolver: labca
+    tls: {}
+    # tls:
+    #   certResolver: labca
     services:
       - name: api@internal
         kind: TraefikService
@@ -67,14 +68,14 @@ additionalArguments:
   - --entrypoints.web.http.redirections.entryPoint.to=websecure
   - --entrypoints.web.http.redirections.entryPoint.scheme=https
 
-certificatesResolvers:
-  labca:
-    acme:
-      email: admin@jhofer.de
-      caServer: "https://pki.jhofer.lan/directory"
-      storage: /data/acme.json
-      httpChallenge:
-        entryPoint: web
+# certificatesResolvers:
+#   labca:
+#     acme:
+#       email: admin@jhofer.de
+#       caServer: "https://pki.jhofer.lan/directory"
+#       storage: /data/acme.json
+#       httpChallenge:
+#         entryPoint: web
 
 logs:
   level: INFO
