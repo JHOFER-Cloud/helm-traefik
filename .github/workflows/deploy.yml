@@ -23,7 +23,7 @@ jobs:
       # internal_acme: https://pki.jhofer.lan/directory
       internal_domain: k8.hla1.jhofer.lan ## CUSTOM ACME
       traefik_dashboard: true
-      root_ca: "https://pki.jhofer.lan/certs/root-ca.pem"
+      root_ca: "http://pki.jhofer.lan/certs/root-ca.pem"
       test_url_path: "dashboard/#/"
     secrets:
       KUBE_CONFIG_DEV: ${{ secrets.KUBE_CONFIG_DEV }} ## HLA1 CONFIG
