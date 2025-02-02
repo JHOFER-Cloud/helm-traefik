@@ -1,5 +1,6 @@
 deployment:
   kind: Deployment
+  replicas: 1
   affinity:
     podAntiAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -20,7 +21,8 @@ ingressRoute:
     entryPoints:
       - websecure
     middlewares: []
-    tls: {}
+    tls:
+      certResolver: labca
     services:
       - name: api@internal
         kind: TraefikService
@@ -60,9 +62,19 @@ additionalArguments:
   - --api.dashboard=true
   - --providers.kubernetesIngress=true
   - --providers.kubernetesCRD=true
-  - --entrypoints.web.address=:80
-  - --entrypoints.websecure.address=:443
   - --serverstransport.insecureskipverify=true
   - --log.level=INFO
   - --entrypoints.web.http.redirections.entryPoint.to=websecure
   - --entrypoints.web.http.redirections.entryPoint.scheme=https
+
+certificatesResolvers:
+  labca:
+    acme:
+      email: admin@jhofer.de
+      caServer: "https://pki.jhofer.lan/directory"
+      storage: /data/acme.json
+      httpChallenge:
+        entryPoint: web
+
+logs:
+  level: INFO
