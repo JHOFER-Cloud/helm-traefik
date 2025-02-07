@@ -1,54 +1,85 @@
 deployment:
-  kind: DaemonSet
-
-additionalArguments:
-  - --api.dashboard=true
-  - --api.insecure=true ##FIX: Disable insecure later
-  - --serverstransport.insecureskipverify=true
-  - --log.level=INFO
-
-ports:
-  web:
-    port: 80
-    expose: true
-    exposedPort: 80
-    protocol: TCP
-  websecure:
-    port: 443
-    expose: true
-    exposedPort: 443
-    protocol: TCP
-
-service:
-  type: LoadBalancer
-  spec:
-    externalTrafficPolicy: Local
+  kind: Deployment
+  replicas: 1
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - traefik
+          topologyKey: "kubernetes.io/hostname"
 
 ingressRoute:
   dashboard:
     enabled: true
     annotations: {}
-    entryPoints: ["web", "websecure"]
+    labels: {}
+    # MatchRule gets set in helm-ci for traefik
+    entryPoints:
+      - websecure
+    middlewares: []
+    tls: {}
+    # tls:
+    #   certResolver: labca
+    services:
+      - name: api@internal
+        kind: TraefikService
 
-rbac:
+dashboard:
   enabled: true
 
-resources:
-  requests:
-    cpu: 100m
-    memory: 128Mi
-  limits:
-    cpu: 500m
-    memory: 512Mi
+experimental:
+  plugins: {}
 
-securityContext:
-  capabilities:
-    drop: [ALL]
-    add: [NET_BIND_SERVICE]
-  readOnlyRootFilesystem: true
-  runAsGroup: 65532
-  runAsNonRoot: true
-  runAsUser: 65532
+ports:
+  web:
+    port: 80
+    expose:
+      default: true
+    exposedPort: 80
+    protocol: TCP
+  websecure:
+    port: 443
+    expose:
+      default: true
+    exposedPort: 443
+    protocol: TCP
+    tls:
+      enabled: true
+
+service:
+  type: LoadBalancer
+  spec:
+    externalIPs:
+      - "10.2.1.214"
+      - "10.2.1.161"
+
+additionalArguments:
+  - --api=true
+  - --api.insecure=true
+  - --api.dashboard=true
+  - --providers.kubernetesIngress=true
+  - --providers.kubernetesCRD=true
+  - --serverstransport.insecureskipverify=true
+  - --log.level=INFO
+  - --entrypoints.web.http.redirections.entryPoint.to=websecure
+  - --entrypoints.web.http.redirections.entryPoint.scheme=https
+
+# certificatesResolvers:
+#   labca:
+#     acme:
+#       email: admin@jhofer.de
+#       caServer: "https://pki.jhofer.lan/directory"
+#       storage: /data/acme.json
+#       httpChallenge:
+#         entryPoint: web
 
 podSecurityContext:
-  fsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+logs:
+  level: INFO

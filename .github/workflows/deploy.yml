@@ -1,21 +1,32 @@
 name: Deploy Traefik
-
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - dev
   pull_request:
-    branches: [main]
-
+    branches:
+      - dev
 jobs:
-  deploy:
-    uses: JHOFER-Cloud/helm-ci/.github/workflows/k8s-deploy-template.yml@main
+  traefik:
+    uses: JHOFER-Cloud/helm-ci/.github/workflows/k8s-deploy-template.yml@dev
     with:
       app_name: traefik
       helm_repository: https://traefik.github.io/charts
-      helm_chart: traefik # Changed from traefik/traefik to just traefik
-      helm_version: 24.0.0
+      helm_chart: traefik/traefik
+      helm_version: 34.3.0
       values_path: helm/values
-      ingress_domain: jhofer.lan
+      ##TODO:
+      # live_domain: jhofer.org ## As example; If not set fallback to internal_domain
+      # live_domain: ["live.k8.hla1.jhofer.lan", "hla1.jhofer.lan"] ## Multiple live/dev domains
+      # live_acme: true ## Letsencrypt; false or not set = dev_acme
+      # live_acme_email: admin@jhofer.de
+      # dev_acme: https://pki.jhofer.lan/directory
+      dev_domain: dev.k8.hla1.jhofer.lan ## CUSTOM ACME
+      traefik_dashboard: true
+      # root_ca: "http://pki.jhofer.lan/certs/root-ca.pem"
+      test_url_path: "dashboard/#/"
+      pr_deployments: false
     secrets:
-      KUBE_CONFIG_DEV: ${{ secrets.KUBE_CONFIG_DEV }}
-      KUBE_CONFIG_LIVE: ${{ secrets.KUBE_CONFIG_LIVE }}
+      KUBE_CONFIG_DEV: ${{ secrets.KUBE_CONFIG_DEV }} ## HLA1 CONFIG
+      KUBE_CONFIG_LIVE: ${{ secrets.KUBE_CONFIG_LIVE }} ## EMPTY CONFIG
