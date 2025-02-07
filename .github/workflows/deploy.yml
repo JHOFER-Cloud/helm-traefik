@@ -18,10 +18,11 @@ jobs:
       values_path: helm/values
       ##TODO:
       # live_domain: jhofer.org ## As example; If not set fallback to internal_domain
+      # live_domain: ["live.k8.hla1.jhofer.lan", "hla1.jhofer.lan"] ## Multiple live/dev domains
       # live_acme: true ## Letsencrypt; false or not set = dev_acme
       # live_acme_email: admin@jhofer.de
       # dev_acme: https://pki.jhofer.lan/directory
-      dev_domain: k8.hla1.jhofer.lan ## CUSTOM ACME
+      dev_domain: dev.k8.hla1.jhofer.lan ## CUSTOM ACME
       traefik_dashboard: true
       # root_ca: "http://pki.jhofer.lan/certs/root-ca.pem"
       test_url_path: "dashboard/#/"
