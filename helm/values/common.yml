@@ -1,15 +1,59 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/traefik/traefik-helm-chart/refs/heads/master/traefik/values.schema.json
 deployment:
-  kind: Deployment
-  affinity:
-    podAntiAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchExpressions:
-              - key: app.kubernetes.io/name
-                operator: In
-                values:
-                  - traefik
-          topologyKey: "kubernetes.io/hostname"
+  initContainers:
+    - name: volume-permissions
+      image: busybox:latest
+      command:
+        - sh
+        - -c
+        - touch /data/acme.json; chmod -v 600 /data/acme.json
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: ["ALL"]
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 65532
+      volumeMounts:
+        - mountPath: /data
+          name: traefik-data
+    - name: init-ca
+      image: ghcr.io/jhofer-cloud/jhc-ca:latest
+      command:
+        [
+          "/bin/sh",
+          "-c",
+          "cp /usr/local/share/ca-certificates/custom-ca.crt /etc/ssl/certs/custom-ca.crt && update-ca-certificates",
+        ]
+      volumeMounts:
+        - name: ssl-certs
+          mountPath: /etc/ssl/certs
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: ["ALL"]
+        readOnlyRootFilesystem: false
+        runAsNonRoot: true
+        runAsUser: 65532
+  additionalVolumes:
+    - name: ssl-certs
+      emptyDir: {}
+  additionalVolumeMounts:
+    - name: ssl-certs
+      mountPath: /etc/ssl/certs
+      readOnly: false
+podSecurityContext:
+  fsGroup: 65532
+  fsGroupChangePolicy: "OnRootMismatch"
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  readOnlyRootFilesystem: true
 
 ingressRoute:
   dashboard:
@@ -20,9 +64,8 @@ ingressRoute:
     entryPoints:
       - websecure
     middlewares: []
-    tls: {}
-    # tls:
-    #   certResolver: labca
+    tls:
+      certResolver: labca
     services:
       - name: api@internal
         kind: TraefikService
@@ -63,8 +106,13 @@ persistence:
   accessMode: ReadWriteOnce
   size: 128Mi
   path: /data
+  storageClass: longhorn
 
-certResolvers:
+additionalVolumeMounts:
+  - name: ssl-certs
+    mountPath: /etc/ssl/certs
+
+certificatesResolvers:
   labca:
     acme:
       email: admin@jhofer.de
@@ -79,16 +127,8 @@ additionalArguments:
   - --api.dashboard=true
   - --providers.kubernetesIngress=true
   - --providers.kubernetesCRD=true
-  - --entrypoints.web.address=:80
-  - --entrypoints.websecure.address=:443
-  - --serverstransport.insecureskipverify=true
+  - --serverstransport.insecureskipverify=false
   - --log.level=INFO
   - --entrypoints.web.http.redirections.entryPoint.to=websecure
   - --entrypoints.web.http.redirections.entryPoint.scheme=https
-
-podSecurityContext:
-  seccompProfile:
-    type: RuntimeDefault
-
-logs:
-  level: INFO
+  - --serversTransport.rootCAs=/etc/ssl/certs/ca-certificates.crt
