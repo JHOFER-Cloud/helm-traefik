@@ -51,8 +51,25 @@ service:
   type: LoadBalancer
   spec:
     externalIPs:
+      ##TODO: Add mode control/worker nodes
       - "10.2.1.214"
       - "10.2.1.161"
+
+persistence:
+  enabled: true
+  name: traefik-data
+  accessMode: ReadWriteOnce
+  size: 128Mi
+  path: /data
+
+certResolvers:
+  labca:
+    acme:
+      email: admin@jhofer.de
+      caServer: "https://pki.jhofer.lan/directory"
+      storage: /data/acme.json
+      httpChallenge:
+        entryPoint: web
 
 additionalArguments:
   - --api=true
