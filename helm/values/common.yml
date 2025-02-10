@@ -21,6 +21,8 @@ ingressRoute:
       - websecure
     middlewares: []
     tls: {}
+    # tls:
+    #   certResolver: labca
     services:
       - name: api@internal
         kind: TraefikService
@@ -83,3 +85,10 @@ additionalArguments:
   - --log.level=INFO
   - --entrypoints.web.http.redirections.entryPoint.to=websecure
   - --entrypoints.web.http.redirections.entryPoint.scheme=https
+
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+
+logs:
+  level: INFO
