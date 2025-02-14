@@ -109,10 +109,6 @@ persistence:
   path: /data
   storageClass: longhorn
 
-additionalVolumeMounts:
-  - name: ssl-certs
-    mountPath: /etc/ssl/certs
-
 certificatesResolvers:
   labca:
     acme:
