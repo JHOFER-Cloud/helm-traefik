@@ -1,5 +1,37 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
-  "dependencyDashboard": false
+  "dependencyDashboard": false,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["^\\.github/workflows/deploy\\.yml$"],
+      "matchStrings": [
+        "helm_chart:\\s*traefik\\n\\s*helm_version:\\s*(?<currentValue>.+)"
+      ],
+      "depNameTemplate": "traefik/traefik",
+      "datasourceTemplate": "helm",
+      "versioningTemplate": "helm"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["^\\.github/workflows/deploy\\.yml$"],
+      "matchStrings": ["ci_image_tag:\\s*(?<currentValue>.+)"],
+      "depNameTemplate": "JHOFER-Cloud/helm-ci",
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "semver"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": ["helm"],
+      "matchPackageNames": ["traefik/traefik"],
+      "reviewers": ["ojsef39"]
+    },
+    {
+      "matchDatasources": ["github-tags"],
+      "matchPackageNames": ["JHOFER-Cloud/helm-ci"],
+      "reviewers": ["ojsef39"]
+    }
+  ]
 }
