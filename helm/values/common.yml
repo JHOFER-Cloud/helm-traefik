@@ -39,10 +39,6 @@ deployment:
   additionalVolumes:
     - name: ssl-certs
       emptyDir: {}
-  additionalVolumeMounts:
-    - name: ssl-certs
-      mountPath: /etc/ssl/certs
-      readOnly: false
 podSecurityContext:
   fsGroup: 65532
   fsGroupChangePolicy: "OnRootMismatch"
@@ -108,6 +104,10 @@ persistence:
   size: 128Mi
   path: /data
   storageClass: longhorn
+
+additionalVolumeMounts:
+  - name: ssl-certs
+    mountPath: /etc/ssl/certs
 
 certificatesResolvers:
   labca:
