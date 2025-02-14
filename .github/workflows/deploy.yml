@@ -13,7 +13,7 @@ jobs:
     with:
       app_name: traefik
       helm_repository: https://traefik.github.io/charts
-      helm_chart: traefik
+      helm_chart: traefik/traefik
       helm_version: 34.3.0
       values_path: helm/values
       ##TODO:
