@@ -1,5 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/traefik/traefik-helm-chart/refs/heads/master/traefik/values.schema.json
 deployment:
+  replicas: 2
   initContainers:
     - name: volume-permissions
       image: busybox:latest
@@ -103,7 +104,7 @@ service:
 persistence:
   enabled: true
   name: traefik-data
-  accessMode: ReadWriteOnce
+  accessMode: ReadWriteMany
   size: 128Mi
   path: /data
   storageClass: longhorn
