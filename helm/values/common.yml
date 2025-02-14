@@ -39,6 +39,10 @@ deployment:
   additionalVolumes:
     - name: ssl-certs
       emptyDir: {}
+  additionalVolumeMounts:
+    - name: ssl-certs
+      mountPath: /etc/ssl/certs
+      readOnly: false
 podSecurityContext:
   fsGroup: 65532
   fsGroupChangePolicy: "OnRootMismatch"
